@@ -92,8 +92,8 @@ def update_workstation():
             return jsonify({"error": "No data received"}), 400
 
         client = data.get("client")
-        ws_name = data.get("system")
-
+        ws_name = data.get("system", "").strip()
+        
         if not client or not ws_name:
             print(f"Missing client or system: client={client}, system={ws_name}")
             return jsonify({"error": "Missing client or system"}), 400
