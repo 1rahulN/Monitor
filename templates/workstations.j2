@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{ title }}</title>
+<link rel="icon" type="image/x-icon" href="/static/r_logo.png">
+<meta http-equiv="refresh" content="5">
+
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    padding: 15px;
+    margin: 0;
+}
+
+.navbar {
+    background: #1e293b;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+    font-size: 14px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 15px;
+}
+
+.card h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #1e293b;
+}
+
+.card h4 {
+    margin: 15px 0 8px 0;
+    font-size: 14px;
+    color: #475569;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+}
+
+.status-online {
+    color: #10b981;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.status-offline {
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.status-unknown {
+    color: #6b7280;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0 4px 0;
+    font-size: 13px;
+}
+
+.metric-label {
+    color: #475569;
+}
+
+.metric-value {
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.progress {
+    background: #e2e8f0;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.2s;
+}
+
+.disk-item {
+    background: #f8fafc;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.disk-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.disk-details {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+ul {
+    padding-left: 18px;
+    margin: 8px 0;
+}
+
+li {
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+.no-data {
+    color: #94a3b8;
+    font-size: 12px;
+    text-align: center;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div>{{ title | default('System Monitor Dashboard') }}</div>
+    <div>
+        <a href="/">Home</a>
+        <a href="/workstations">Workstations</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
+
+<h3>Workstations</h3>
+
+<div class="dashboard">
+    {% for ws in workstations %}
+    <div class="card">
+        <h3>{{ ws.name }}</h3>
+        
+        {% set status_lower = ws.status | lower %}
+        <div class="status-{{ status_lower }}">
+            ● {{ ws.status | default('Unknown') }}
+        </div>
+        
+        <div class="metric-row">
+            <span class="metric-label">RAM Usage</span>
+            <span class="metric-value">{{ ws.ram | default(0) }}%</span>
+        </div>
+        <div class="progress">
+            <div class="bar" style="width: {{ ws.ram | default(0) }}%; background: {% if ws.ram > 70 %}#e53e3e{% elif ws.ram > 50 %}#f59e0b{% else %}#10b981{% endif %};"></div>
+        </div>
+        
+        <div class="metric-row">
+            <span class="metric-label">CPU Load</span>
+            <span class="metric-value">{{ ws.cpu | default(0) }}%</span>
+        </div>
+        <div class="progress">
+            <div class="bar" style="width: {{ ws.cpu | default(0) }}%; background: #3b82f6;"></div>
+        </div>
+        
+        <h4>Disk Usage</h4>
+        {% if ws.disk and ws.disk|length > 0 %}
+            {% for d in ws.disk %}
+            <div class="disk-item">
+                <div class="disk-header">
+                    <span>{{ d.Drive }}</span>
+                    <span>{{ d.UsedPercent }}% used</span>
+                </div>
+                <div class="progress">
+                    <div class="bar" style="width: {{ d.UsedPercent }}%; background: #f97316;"></div>
+                </div>
+                <div class="disk-details">
+                    <span>Free: {{ d.FreeGB }} GB</span>
+                    <span>Total: {{ d.TotalGB }} GB</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-data">No disk information available</div>
+        {% endif %}
+        
+        <h4>Top Processes</h4>
+        {% if ws.topProcesses and ws.topProcesses|length > 0 %}
+            <ul>
+                {% for p in ws.topProcesses %}
+                <li>{{ p.Name }} - CPU: {{ p.CPU }}%</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="no-data">No process data available</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
