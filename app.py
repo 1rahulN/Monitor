@@ -577,7 +577,7 @@ def dashboard():
         return redirect("/login")
 
     username = session["user"]
-    title = users[username]["title"]
+    title = users[username]["title"] # type: ignore
 
     systems = workstations_data.get(username, {})
 
@@ -646,7 +646,7 @@ def workstations():
         return redirect("/login")
 
     username = session["user"]
-    title = users[username]["title"]
+    title = users[username]["title"] # type: ignore
 
     systems = workstations_data.get(username, {})
 
