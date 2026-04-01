@@ -15,6 +15,26 @@ app = Flask(__name__)
 app.secret_key = "system_monitor_secret"
 
 # -----------------------------
+# USER AUTHENTICATION
+# -----------------------------
+# Define users with their credentials and titles
+users = {
+    "arena": {
+        "password": "arena123",  # Change this to a secure password
+        "title": "Arena Workstations"
+    },
+    "test1": {
+        "password": "test123",
+        "title": "Test Group 1"
+    },
+    "test2": {
+        "password": "test123",
+        "title": "Test Group 2"
+    }
+    # Add more users as needed
+}
+
+# -----------------------------
 # DATABASE SETUP
 # -----------------------------
 DATABASE_FILE = "workstations.db"
@@ -394,7 +414,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        if username in users and users[username]["password"] == password: # type: ignore
+        if username in users and users[username]["password"] == password:
             session["user"] = username
             return redirect("/")
 
@@ -577,7 +597,7 @@ def dashboard():
         return redirect("/login")
 
     username = session["user"]
-    title = users[username]["title"] # type: ignore
+    title = users[username]["title"]
 
     systems = workstations_data.get(username, {})
 
@@ -646,7 +666,7 @@ def workstations():
         return redirect("/login")
 
     username = session["user"]
-    title = users[username]["title"] # type: ignore
+    title = users[username]["title"]
 
     systems = workstations_data.get(username, {})
 
