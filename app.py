@@ -20,7 +20,7 @@ app.secret_key = "system_monitor_secret"
 # Define users with their credentials and titles
 users = {
     "arena": {
-        "password": "arena123",  # Change this to a secure password
+        "password": "123",  # Change this to a secure password
         "title": "Arena Workstations"
     },
     "test1": {
