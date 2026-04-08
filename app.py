@@ -25,7 +25,7 @@ users = {
     },
     "test1": {
         "password": "test123",
-        "title": "Test Group 1"
+        "title": "Group A"
     },
     "test2": {
         "password": "test123",
